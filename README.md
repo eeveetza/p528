@@ -1,5 +1,8 @@
 # MATLAB/Octave Implementation of Recommendation ITU-R P.528
 
+[![DOI](https://zenodo.org/badge/463120412.svg)](https://zenodo.org/badge/latestdoi/463120412)
+
+
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.528-5](https://www.itu.int/rec/R-REC-P.528/en) with a propagation prediction method for aeronautical mobile and radionavigation services in the frequency range 100 - 30000 MHz.  
 
 This is a translation of the original reference C++ implementation of this Recommendation available at [NTIA/p528](https://github.com/NTIA/p528) provided by the US National Telecommunications and Information Administration [NTIA](https://www.ntia.gov). This version of the code corresponds to the reference MATLAB/Octave version approved by ITU-R Working Party 3K and published by Study Group 3 on [ITU-R SG 3 Software, Data, and Validation Web Page](https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx).
