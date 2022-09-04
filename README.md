@@ -1,4 +1,4 @@
-# MATLAB/Octave Implementation of Recommendation ITU-R P.528-5
+# MATLAB/Octave Implementation of Recommendation ITU-R P.528
 
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.528-5](https://www.itu.int/rec/R-REC-P.528/en) with a propagation prediction method for aeronautical mobile and radionavigation services in the frequency range 100 - 30000 MHz.  
 
