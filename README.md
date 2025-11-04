@@ -1,7 +1,8 @@
 # MATLAB/Octave Implementation of Recommendation ITU-R P.528
 
-[![DOI](https://zenodo.org/badge/463120412.svg)](https://zenodo.org/badge/latestdoi/463120412)
+<!--[![DOI](https://zenodo.org/badge/463120412.svg)](https://zenodo.org/badge/latestdoi/463120412)-->
 
+This development branch introduces an option in P.528 to exclude the reflected ray.
 
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.528-5](https://www.itu.int/rec/R-REC-P.528/en) with a propagation prediction method for aeronautical mobile and radionavigation services in the frequency range 100 - 30000 MHz.  
 
@@ -33,6 +34,7 @@ result = tl_p528(d__km, h_1__meter, h_2__meter, f__mhz,  T_pol, p);
 | `f__mhz`          | scalar double | MHz    | 100 ≤ `f__mhz` ≤ 30000   | Frequency|
 | `T_pol`           | scalar int    |       |             |  Polarization <br> 0 = horizontal <br> 1 = vertical |
 | `p`          | scalar double | %    | 1 ≤ `p` ≤ 99   | Time percentage|
+| `use_reflection`          | scalar boolean | -   | true | false   | Boolean flag, set to false when the reflected ray is not to be included|
 
 
 
