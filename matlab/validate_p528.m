@@ -2,7 +2,7 @@ clear all
 close all
 fclose all;
 clc
-
+use_reflection = false;
 
 % immediate printing to command window in octave
 % if (isOctave)
@@ -91,7 +91,7 @@ for pp=1:length(path)
         for i = 1:1000:length(D)
             for j = 1:length(h1)
                 
-                result = tl_p528(D(i),h1(j), h2(j), f, 0, p*100);
+                result = tl_p528(D(i),h1(j), h2(j), f, 0, p*100, use_reflection);
                 
                 delta = round(10.0 * (result.A__db-tl_ref(i,j)) ) / 10.0;
                 

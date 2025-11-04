@@ -1,4 +1,4 @@
-function result = tl_p528(d__km, h_1__meter, h_2__meter, f__mhz,  T_pol, p)
+function result = tl_p528(d__km, h_1__meter, h_2__meter, f__mhz,  T_pol, p, use_reflection)
 % tl_p528 - computes basic transmission loss according to Recommendation
 % ITU-R P.528-5 for aeronautical mobile and radionavigation services.
 %      result = tl_p528(d__km, h_1__meter, h_2__meter, f__mhz, t_pol, p)
@@ -12,6 +12,7 @@ function result = tl_p528(d__km, h_1__meter, h_2__meter, f__mhz,  T_pol, p)
 %                h_2__meter        - Height of the high terminal, in meters
 %                f__mhz            - Frequency, in MHz
 %                p                 - Time percentage
+%                use_reflection    - Boolean flag, set to false when not including the reflected ray 
 %
 %      Outputs:  result            - Result structure containing various
 %                                    computed parameters
@@ -165,7 +166,7 @@ K_LOS = 0;
 if (path.d_ML__km - d__km > 0.001)
     
     result.propagation_mode = Const.PROP_MODE__LOS;
-    [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, -A_dML__db, p, d__km, T_pol, Const);
+    [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, -A_dML__db, p, d__km, T_pol, use_reflection, Const);
     
     rtn = Const.SUCCESS;
     result.rtn = rtn;
@@ -174,7 +175,7 @@ if (path.d_ML__km - d__km > 0.001)
 else
     
     % get K_LOS
-    [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, Const);
+    [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, use_reflection, Const);
     
     % Step 6.  Search past horizon to find crossover point between Diffraction and Troposcatter models
     
@@ -498,7 +499,7 @@ return
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, A_dML__db, p, d__km, T_pol, Const)
+function [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2, f__mhz, A_dML__db, p, d__km, T_pol, use_reflection, Const)
 %
 %  Description:  This function computes the total loss in the line-of-sight
 %                region as described in Annex 2, Section 6 of
@@ -516,6 +517,7 @@ function [result, los_params, K_LOS] = LineOfSight(path, terminal_1, terminal_2,
 %                T_pol         - Code indicating either polarization
 %                                  + 0 : POLARIZATION__HORIZONTAL
 %                                  + 1 : POLARIZATION__VERTICAL
+%                use_reflection - Boolean: false - do not account for the reflected ray
 %
 %      Outputs:  los_params    - Struct containing LOS parameters
 %                result        - Struct containing P.528 results
@@ -600,7 +602,7 @@ los_params = LineOfSightParams();
 
 los_params = RayOptics(terminal_1, terminal_2, psi_d0, los_params, Const);
 
-[los_params, R_Tg] = GetPathLoss(psi_d0, path, f__mhz, psi_limit, A_dML__db, 0, T_pol, los_params, Const);
+[los_params, R_Tg] = GetPathLoss(psi_d0, path, f__mhz, psi_limit, A_dML__db, 0, T_pol, los_params, use_reflection, Const);
 
 %
 % Compute loss at d_0__km
@@ -611,7 +613,7 @@ psi = FindPsiAtDistance(d__km, path, terminal_1, terminal_2, Const);
 
 los_params = RayOptics(terminal_1, terminal_2, psi, los_params, Const);
 
-[los_params, R_Tg] = GetPathLoss(psi, path, f__mhz, psi_limit, A_dML__db, los_params.A_LOS__db, T_pol, los_params, Const);
+[los_params, R_Tg] = GetPathLoss(psi, path, f__mhz, psi_limit, A_dML__db, los_params.A_LOS__db, T_pol, los_params, use_reflection, Const);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute atmospheric absorption
@@ -860,7 +862,7 @@ return
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [params, R_Tg] = GetPathLoss(psi__rad, path, f__mhz, psi_limit, A_dML__db, A_d_0__db, T_pol, params, Const)
+function [params, R_Tg] = GetPathLoss(psi__rad, path, f__mhz, psi_limit, A_dML__db, A_d_0__db, T_pol, params, use_reflection, Const)
 
 %
 %  Description:  This function computes the line of sight loss
@@ -878,6 +880,7 @@ function [params, R_Tg] = GetPathLoss(psi__rad, path, f__mhz, psi_limit, A_dML__
 %                T_pol         - Code indicating either polarization
 %                                  + 0 : POLARIZATION__HORIZONTAL
 %                                  + 1 : POLARIZATION__VERTICAL
+%                use_reflection - boolean, set to false if the reflected ray is not accounted for 
 %
 %      Outputs:  params        - Line of sight loss params
 %                R_Tg          - Reflection parameter
@@ -911,6 +914,10 @@ if (params.d__km > path.d_0__km)
     params.A_LOS__db = ((params.d__km - path.d_0__km) * (A_dML__db - A_d_0__db) / (path.d_ML__km - path.d_0__km)) + A_d_0__db;
     
 else
+
+    if (~use_reflection)
+        return
+    end
     
     lambda__km = 0.2997925 / f__mhz;	% [Eqn 8-2]
     
