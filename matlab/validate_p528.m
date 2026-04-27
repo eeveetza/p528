@@ -2,7 +2,7 @@ clear all
 close all
 fclose all;
 clc
-use_reflection = false;
+use_reflection = true;
 
 % immediate printing to command window in octave
 % if (isOctave)
@@ -11,6 +11,7 @@ use_reflection = false;
 % end
 
 path{1} = './Data Tables';
+%path{1} = './';
 
 %% begin code
 % Collect all the filenames .csv in the folder pathname that contain the profile data
@@ -23,16 +24,22 @@ cnt_pass = 0;
 
 for pp=1:length(path)
     datanumber=length(filenames{pp});
-    
+
     for ii=1:datanumber
+        clear h1 h2 D
         %for ii = 1:1
         kindex=1;
         filename1 = filenames{pp}(ii).name;
         fprintf(1,'***********************************************\n');
-        fprintf(1,' Processing file %d/%d: %s%s ...\n', ii, datanumber, path{pp}, filename1);
+        fprintf(1,' Processing file %d/%d: %s/%s ...\n', ii, datanumber, path{pp}, filename1);
         fprintf(1,'***********************************************\n');
         filename=[path{pp} '/' filenames{pp}(ii).name];
         fid=fopen(filename,'r');
+        if contains(filename, 'wo_reflection')
+            use_reflection = false;
+        else
+            use_reflection = true;
+        end
         if (fid==-1)
             return;
         end
@@ -50,7 +57,7 @@ for pp=1:length(path)
         readLine = fgetl(fid);
         dummy = regexp(readLine,',','split');
         
-        for i = 1:length(dummy(3:end))-3
+        for i = 1:length(dummy(3:end))
             h2(i) = str2double(dummy(i+2));
         end
         
@@ -58,7 +65,7 @@ for pp=1:length(path)
         readLine = fgetl(fid);
         dummy = regexp(readLine,',','split');
         
-        for i = 1:length(dummy(3:end))-3
+        for i = 1:length(dummy(3:end))
             h1(i) = str2double(dummy(i+2));
         end
         
@@ -77,7 +84,7 @@ for pp=1:length(path)
             dummy=regexp(readLine,',','split');
             D(count) = str2double(dummy(1));
             FSL(count) = str2double(dummy(2));
-            for i = 1:length(dummy(3:end))-3
+            for i = 1:length(dummy(3:end))
                 tl_ref(count,i) = str2double(dummy(i+2));
             end
             
@@ -87,8 +94,12 @@ for pp=1:length(path)
         delta = 0;
         
         
-        
-        for i = 1:1000:length(D)
+        if (use_reflection)
+            step = 20;
+        else
+            step = 1;
+        end
+        for i = 1:step:length(D)
             for j = 1:length(h1)
                 
                 result = tl_p528(D(i),h1(j), h2(j), f, 0, p*100, use_reflection);
